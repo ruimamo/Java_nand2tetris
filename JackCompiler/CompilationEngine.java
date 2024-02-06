@@ -7,9 +7,7 @@ public class CompilationEngine {
     private SymbolTable symbolTable;
 
     private String className;
-    private int numOfLocalVariable;
     private int numOfExpression;
-    private int numOfField;
 
     private int labelNumberOfWhile;
     private int labelNumberOfIf;
@@ -71,19 +69,19 @@ public class CompilationEngine {
         }
         jackTokenizer.advance();
 
-        numOfField = 0;
+        int numOfField = 0;
 
         while (jackTokenizer.tokenType() == EnumToken.KEYWORD
                 && (jackTokenizer.keyWord().equals("static")
                         || jackTokenizer.keyWord().equals("field"))) {
-            compileClassVarDec();
+            numOfField += compileClassVarDec();
         }
 
         while (jackTokenizer.tokenType() == EnumToken.KEYWORD
                 && (jackTokenizer.keyWord().equals("constructor")
                         || jackTokenizer.keyWord().equals("function")
                         || jackTokenizer.keyWord().equals("method"))) {
-            compileSubroutine();
+            compileSubroutine(numOfField);
         }
 
         if (jackTokenizer.tokenType() != EnumToken.SYMBOL || jackTokenizer.symbol() != '}') {
@@ -93,12 +91,16 @@ public class CompilationEngine {
 
     }
 
-    public void compileClassVarDec()
+    public int compileClassVarDec()
             throws IllegalTokenException, IllegalJackSyntaxException, IOException, IllegalSymbolTableException,
             SymbolNotFoundException {
         String name;
         String type;
         String kind;
+
+        //compileSubroutine内で、コンストラクタをコンパイルする際に、フィールドの数だけMemory.Allocで
+        //メモリを確保するVMコードを挿入するため、フィールドの数を返す。
+        int numOfField = 0;
 
         if (jackTokenizer.tokenType() != EnumToken.KEYWORD
                 || (!jackTokenizer.keyWord().equals("static")
@@ -150,9 +152,10 @@ public class CompilationEngine {
         }
         jackTokenizer.advance();
 
+        return numOfField;
     }
 
-    public void compileSubroutine()
+    public void compileSubroutine(int numOfField)
             throws IllegalTokenException, IllegalJackSyntaxException, IOException, IllegalSymbolTableException,
             SymbolNotFoundException {
         symbolTable.startSubroutine();
@@ -216,9 +219,9 @@ public class CompilationEngine {
         }
         jackTokenizer.advance();
 
-        numOfLocalVariable = 0;
+        int numOfLocalVariable = 0;
         while (jackTokenizer.tokenType() == EnumToken.KEYWORD && (jackTokenizer.keyWord().equals("var"))) {
-            compileVarDec();
+            numOfLocalVariable += compileVarDec();
         }
 
         vMwriter.writeFunction(className + "." + subroutineName, numOfLocalVariable);
@@ -325,10 +328,13 @@ public class CompilationEngine {
 
     }
 
-    public void compileVarDec() throws IllegalJackSyntaxException, IllegalTokenException, IOException,
+    public int compileVarDec() throws IllegalJackSyntaxException, IllegalTokenException, IOException,
             IllegalSymbolTableException, SymbolNotFoundException {
         String name;
         String type;
+
+        // function (functionName) (number of local variable)を書き込む際のローカル変数の個数を求めるための返り値
+        int numOfLocalVariable = 0;
 
         if (jackTokenizer.tokenType() != EnumToken.KEYWORD || !jackTokenizer.keyWord().equals("var")) {
             throw new IllegalJackSyntaxException("the first word of variable declare must be \"var\" ");
@@ -373,6 +379,7 @@ public class CompilationEngine {
         }
         jackTokenizer.advance();
 
+        return numOfLocalVariable;
     }
 
     public void compileStatements()
