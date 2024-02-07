@@ -7,7 +7,6 @@ public class CompilationEngine {
     private SymbolTable symbolTable;
 
     private String className;
-    private int numOfExpression;
 
     private int labelNumberOfWhile;
     private int labelNumberOfIf;
@@ -98,8 +97,8 @@ public class CompilationEngine {
         String type;
         String kind;
 
-        //compileSubroutine内で、コンストラクタをコンパイルする際に、フィールドの数だけMemory.Allocで
-        //メモリを確保するVMコードを挿入するため、フィールドの数を返す。
+        // compileSubroutine内で、コンストラクタをコンパイルする際に、フィールドの数だけMemory.Allocで
+        // メモリを確保するVMコードを挿入するため、フィールドの数を返す。
         int numOfField = 0;
 
         if (jackTokenizer.tokenType() != EnumToken.KEYWORD
@@ -688,12 +687,9 @@ public class CompilationEngine {
             jackTokenizer.advance();
 
             if (jackTokenizer.tokenType() == EnumToken.SYMBOL && jackTokenizer.symbol() == '(') {
-
                 jackTokenizer.advance();
 
-                numOfExpression = 0;
-
-                compileExpressionList();
+                int numOfExpression = compileExpressionList();
 
                 if (jackTokenizer.tokenType() != EnumToken.SYMBOL || jackTokenizer.symbol() != ')') {
                     throw new IllegalJackSyntaxException("expression list must be surrounded '(' ')'. ");
@@ -702,6 +698,9 @@ public class CompilationEngine {
 
                 vMwriter.writeCall(this.className + "." + tmpIdentifier, numOfExpression);
             } else if (jackTokenizer.tokenType() == EnumToken.SYMBOL && jackTokenizer.symbol() == '.') {
+                int numOfExpression = 0;
+
+                // オブジェクトのメソッドは自身の参照を隠れ引数として渡す。そのためcallする際に引数の個数が１つ増える。
                 if (!symbolTable.kindOf(tmpIdentifier).equals("NONE")) {
                     if (symbolTable.kindOf(tmpIdentifier).equals("static")) {
                         vMwriter.writePush("static", symbolTable.indexOf(tmpIdentifier));
@@ -713,9 +712,7 @@ public class CompilationEngine {
                         vMwriter.writePush("argument", symbolTable.indexOf(tmpIdentifier));
                     }
                     tmpIdentifier = symbolTable.typeOf(tmpIdentifier);
-                    numOfExpression = 1;
-                } else {
-                    numOfExpression = 0;
+                    numOfExpression++;
                 }
                 jackTokenizer.advance();
 
@@ -731,7 +728,7 @@ public class CompilationEngine {
                 }
                 jackTokenizer.advance();
 
-                compileExpressionList();
+                numOfExpression += compileExpressionList();
 
                 if (jackTokenizer.tokenType() != EnumToken.SYMBOL || jackTokenizer.symbol() != ')') {
                     throw new IllegalJackSyntaxException("expression list must be surrounded '(' ')'. ");
@@ -817,8 +814,10 @@ public class CompilationEngine {
 
     }
 
-    public void compileExpressionList()
+    public int compileExpressionList()
             throws IllegalTokenException, IOException, IllegalJackSyntaxException, SymbolNotFoundException {
+
+        int numOfExpression = 0;
 
         if (jackTokenizer.tokenType() == EnumToken.INT_CONST
                 || jackTokenizer.tokenType() == EnumToken.STRING_CONST
@@ -846,13 +845,14 @@ public class CompilationEngine {
                 numOfExpression++;
             }
         }
-
+        return numOfExpression;
     }
 
     private void compileSubroutineCall()
             throws IllegalJackSyntaxException, IllegalTokenException, IOException, SymbolNotFoundException {
         String subroutineName;
         String objectName;
+        int numOfExpression = 0;
 
         if (jackTokenizer.tokenType() != EnumToken.IDENTIFIER) {
             throw new IllegalJackSyntaxException("the first word of subroutineCall must be identifier.");
@@ -877,26 +877,25 @@ public class CompilationEngine {
 
             String kind = symbolTable.kindOf(objectName);
 
+            // オブジェクトのメソッドは自身の参照を隠れ引数として渡す。そのためcallする際の引数の個数が１つ増える。
             if (kind.equals("static")) {
                 vMwriter.writePush("static", symbolTable.indexOf(objectName));
-                numOfExpression = 1;
+                numOfExpression++;
             } else if (kind.equals("field")) {
                 vMwriter.writePush("this", symbolTable.indexOf(objectName));
-                numOfExpression = 1;
+                numOfExpression++;
             } else if (kind.equals("var")) {
                 vMwriter.writePush("local", symbolTable.indexOf(objectName));
-                numOfExpression = 1;
+                numOfExpression++;
             } else if (kind.equals("arg")) {
                 vMwriter.writePush("argument", symbolTable.indexOf(objectName));
-                numOfExpression = 1;
-            } else {
-                numOfExpression = 0;
+                numOfExpression++;
             }
 
         } else {
             subroutineName = className + "." + subroutineName;
             vMwriter.writePush("pointer", 0);
-            numOfExpression = 1;
+            numOfExpression++;
         }
 
         if (jackTokenizer.tokenType() != EnumToken.SYMBOL || jackTokenizer.symbol() != '(') {
@@ -904,7 +903,7 @@ public class CompilationEngine {
         }
         jackTokenizer.advance();
 
-        compileExpressionList();
+        numOfExpression += compileExpressionList();
 
         if (jackTokenizer.tokenType() != EnumToken.SYMBOL || jackTokenizer.symbol() != ')') {
             throw new IllegalJackSyntaxException("expression list must be surrounded '(' ')'. ");
