@@ -35,7 +35,6 @@ public class CompilationEngine {
             throws IOException, IllegalTokenException, IllegalJackSyntaxException, IllegalSymbolTableException,
             SymbolNotFoundException {
         compileClass();
-        symbolTable.showTable();
     }
 
     public void closeInputOutputFile() {
@@ -87,7 +86,6 @@ public class CompilationEngine {
             throw new IllegalJackSyntaxException("'}' is not found.");
         }
         jackTokenizer.advance();
-
     }
 
     public int compileClassVarDec()
@@ -250,7 +248,6 @@ public class CompilationEngine {
             throw new IllegalJackSyntaxException("A subroutine body must be surrounded '{' '}'. ");
         }
         jackTokenizer.advance();
-
     }
 
     public void compileParameterList()
@@ -280,7 +277,6 @@ public class CompilationEngine {
             name = jackTokenizer.identifier();
             symbolTable.define(name, type, "arg");
             jackTokenizer.advance();
-
         } else if (jackTokenizer.tokenType() == EnumToken.IDENTIFIER) {
             type = jackTokenizer.identifier();
             jackTokenizer.advance();
@@ -309,7 +305,6 @@ public class CompilationEngine {
                 name = jackTokenizer.identifier();
                 symbolTable.define(name, type, "arg");
                 jackTokenizer.advance();
-
             } else if (jackTokenizer.tokenType() == EnumToken.IDENTIFIER) {
                 type = jackTokenizer.identifier();
                 jackTokenizer.advance();
@@ -324,7 +319,6 @@ public class CompilationEngine {
                 throw new IllegalJackSyntaxException("A parameter type is missing");
             }
         }
-
     }
 
     public int compileVarDec() throws IllegalJackSyntaxException, IllegalTokenException, IOException,
@@ -402,12 +396,10 @@ public class CompilationEngine {
                 compileIf();
             }
         }
-
     }
 
     public void compileDo()
             throws IllegalTokenException, IllegalJackSyntaxException, IOException, SymbolNotFoundException {
-
         if (jackTokenizer.tokenType() != EnumToken.KEYWORD || !jackTokenizer.keyWord().equals("do")) {
             throw new IllegalJackSyntaxException("The first word of doStatement must be \"do\"");
         }
@@ -421,7 +413,6 @@ public class CompilationEngine {
             throw new IllegalJackSyntaxException("the end of subroutine must be ';'. ");
         }
         jackTokenizer.advance();
-
     }
 
     public void compileLet()
@@ -561,7 +552,6 @@ public class CompilationEngine {
             vMwriter.writeReturn();
             jackTokenizer.advance();
         }
-
     }
 
     public void compileIf()
@@ -814,7 +804,6 @@ public class CompilationEngine {
         } else {
             throw new IllegalJackSyntaxException("Illegal term");
         }
-
     }
 
     public int compileExpressionList()
@@ -894,7 +883,6 @@ public class CompilationEngine {
                 vMwriter.writePush("argument", symbolTable.indexOf(objectName));
                 numOfExpression++;
             }
-
         } else {
             subroutineName = this.className + "." + subroutineName;
 
@@ -918,5 +906,4 @@ public class CompilationEngine {
 
         vMwriter.writeCall(subroutineName, numOfExpression);
     }
-
 }

@@ -13,7 +13,6 @@ public class JackCompiler {
             File[] files = dir.listFiles();
 
             for (int i = 0; i < files.length; i++) {
-                System.out.println("getName: " + files[i].getName());
                 if (files[i].getName().matches("^.*\\.jack$")) {
                     compileOneFile(files[i]);
                 }
@@ -23,11 +22,9 @@ public class JackCompiler {
 
             compileOneFile(file);
         }
-
     }
 
     private static void compileOneFile(File inputFile) {
-
         CompilationEngine compilationEngine = new CompilationEngine(inputFile);
 
         try {

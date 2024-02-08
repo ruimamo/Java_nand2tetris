@@ -143,7 +143,6 @@ public class JackTokenizer {
                 // 現トークン確定
                 this.currentReaderChar = chr;
             }
-
         } while (isInCommentOut && this.hasNext);
 
         this.nextToken = nextElement;
@@ -155,7 +154,6 @@ public class JackTokenizer {
 
     public void advance() {
         this.currentToken = this.nextToken;
-        System.out.println(this.currentToken);
         try {
             readNextToken();
         } catch (IOException e) {
