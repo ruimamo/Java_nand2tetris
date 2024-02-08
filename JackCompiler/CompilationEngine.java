@@ -19,8 +19,8 @@ public class CompilationEngine {
 
             vMwriter = new VMwriter(outputFile);
 
-            labelNumberOfIf = 0;
-            labelNumberOfWhile = 0;
+            this.labelNumberOfIf = 0;
+            this.labelNumberOfWhile = 0;
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -60,7 +60,7 @@ public class CompilationEngine {
         if (jackTokenizer.tokenType() != EnumToken.IDENTIFIER) {
             throw new IllegalJackSyntaxException("The class name must be identifier.");
         }
-        className = jackTokenizer.identifier();
+        this.className = jackTokenizer.identifier();
         jackTokenizer.advance();
 
         if (jackTokenizer.tokenType() != EnumToken.SYMBOL || jackTokenizer.symbol() != '{') {
@@ -178,7 +178,7 @@ public class CompilationEngine {
         if (jackTokenizer.tokenType() == EnumToken.KEYWORD
                 && jackTokenizer.keyWord().equals("method")) {
             isMethod = true;
-            symbolTable.define("this", className, "arg");
+            symbolTable.define("this", this.className, "arg");
         }
 
         jackTokenizer.advance();
@@ -223,7 +223,7 @@ public class CompilationEngine {
             numOfLocalVariable += compileVarDec();
         }
 
-        vMwriter.writeFunction(className + "." + subroutineName, numOfLocalVariable);
+        vMwriter.writeFunction(this.className + "." + subroutineName, numOfLocalVariable);
 
         if (isConstructor) {
             vMwriter.writePush("constant", numOfField);
@@ -496,8 +496,8 @@ public class CompilationEngine {
 
     public void compileWhile()
             throws IllegalTokenException, IllegalJackSyntaxException, IOException, SymbolNotFoundException {
-        int labelNumber = labelNumberOfWhile;
-        labelNumberOfWhile++;
+        int labelNumber = this.labelNumberOfWhile;
+        this.labelNumberOfWhile++;
 
         if (jackTokenizer.tokenType() != EnumToken.KEYWORD || !jackTokenizer.keyWord().equals("while")) {
             throw new IllegalJackSyntaxException("The first word of whileExpression must be \"while\".");
@@ -566,8 +566,8 @@ public class CompilationEngine {
 
     public void compileIf()
             throws IllegalTokenException, IllegalJackSyntaxException, IOException, SymbolNotFoundException {
-        int labelNumber = labelNumberOfIf;
-        labelNumberOfIf++;
+        int labelNumber = this.labelNumberOfIf;
+        this.labelNumberOfIf++;
 
         if (jackTokenizer.tokenType() != EnumToken.KEYWORD || !jackTokenizer.keyWord().equals("if")) {
             throw new IllegalJackSyntaxException("the first word of ifExpression must be \"if\"");
@@ -689,7 +689,10 @@ public class CompilationEngine {
             if (jackTokenizer.tokenType() == EnumToken.SYMBOL && jackTokenizer.symbol() == '(') {
                 jackTokenizer.advance();
 
-                int numOfExpression = compileExpressionList();
+                // f()の形のサブルーチンがこのクラスのメソッドかファンクションかは不明だが、
+                // 引数としてこのオブジェクトの参照を渡す。引数の数も1つ増える
+                vMwriter.writePush("pointer", 0);
+                int numOfExpression = compileExpressionList() + 1;
 
                 if (jackTokenizer.tokenType() != EnumToken.SYMBOL || jackTokenizer.symbol() != ')') {
                     throw new IllegalJackSyntaxException("expression list must be surrounded '(' ')'. ");
@@ -893,7 +896,10 @@ public class CompilationEngine {
             }
 
         } else {
-            subroutineName = className + "." + subroutineName;
+            subroutineName = this.className + "." + subroutineName;
+
+            // f()の形のサブルーチンがこのクラスのメソッドかファンクションかは不明だが、
+            // 引数としてこのオブジェクトの参照を渡す。引数の数も1つ増える。
             vMwriter.writePush("pointer", 0);
             numOfExpression++;
         }
