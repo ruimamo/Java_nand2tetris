@@ -407,6 +407,8 @@ public class CompilationEngine {
 
         compileSubroutineCall();
 
+        // do文は返り値のないメソッドを実行する。
+        // 返り値のないメソッドは実際には整数の0を返しているため、それをpopする。
         vMwriter.writePop("temp", 0);
 
         if (jackTokenizer.tokenType() != EnumToken.SYMBOL || jackTokenizer.symbol() != ';') {
@@ -452,6 +454,7 @@ public class CompilationEngine {
             }
             jackTokenizer.advance();
 
+            // 代入する時のために、配列のベースアドレスとインデックスを足したものをスタック上に乗せておく
             vMwriter.writeArithmetic("add");
 
             kind = "that";
@@ -478,6 +481,10 @@ public class CompilationEngine {
         } else if (kind.equals("arg")) {
             vMwriter.writePop("argument", index);
         } else if (kind.equals("that")) {
+            // 代入する値の計算中にthatのポインタの位置が変わっている可能性があるため、
+            // 代入する値を一旦tempに待避させてから、
+            // スタック上に乗せていた代入先のアドレスをthatのポインタが指すようpopする。
+            // その後、tempから代入する値をスタックに戻す。
             vMwriter.writePop("temp", 0);
             vMwriter.writePop("pointer", 1);
             vMwriter.writePush("temp", 0);
