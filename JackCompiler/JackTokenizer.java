@@ -65,22 +65,24 @@ public class JackTokenizer {
     private void readNextToken() throws IOException {
         char chr;
         String nextElement;
-        boolean isInCommentOut = false;
-        boolean willBeOutOfCommentOut = false;
+        boolean isInComment = false;
+        boolean willUncomment = false;
 
-        chr = currentReaderChar;
+        chr = this.currentReaderChar;
 
         do {
             nextElement = "";
-            if (willBeOutOfCommentOut) {
-                isInCommentOut = false;
-                willBeOutOfCommentOut = false;
+            if (willUncomment) {
+                isInComment = false;
+                willUncomment = false;
             }
 
             skipBlank();
 
+            //トークンの初めの文字をchrに代入
             chr = this.currentReaderChar;
 
+            //一文字でトークンになる記号の集まり
             if (chr == '{' || chr == '}' || chr == '(' || chr == ')' || chr == '[' || chr == ']'
                     || chr == '.' || chr == ',' || chr == ';'
                     || chr == '+' || chr == '-' || chr == '&'
@@ -92,8 +94,8 @@ public class JackTokenizer {
                 readNextChar();
                 if (this.currentReaderChar == '/') {
                     nextElement += '/';
-                    // 次のトークンからコメントの外になる
-                    willBeOutOfCommentOut = true;
+                    // "*/"の場合は次のトークンからコメントの外になる
+                    willUncomment = true;
                     readNextChar();
                 }
             } else if (chr == '/') {
@@ -101,22 +103,22 @@ public class JackTokenizer {
                 readNextChar();
                 if (this.currentReaderChar == '/') {
                     nextElement += '/';
-                    // この行はコメントになる。次のトークンからコメントの外になる
+                    // "//"の場合、この行はコメントになる。次のトークンからコメントの外になる
                     bufferedReader.readLine();
-                    isInCommentOut = true;
-                    willBeOutOfCommentOut = true;
+                    isInComment = true;
+                    willUncomment = true;
                     readNextChar();
                 } else if (this.currentReaderChar == '*') {
                     nextElement += '*';
                     readNextChar();
                     if (this.currentReaderChar == '*') {
                         nextElement += '*';
-                        // このトークンからコメントに入る
-                        isInCommentOut = true;
+                        // "/*"の場合、このトークンからコメントに入る
+                        isInComment = true;
                         readNextChar();
                     } else {
-                        // このトークンからコメントに入る
-                        isInCommentOut = true;
+                        // "/**"の場合、このトークンからコメントに入る
+                        isInComment = true;
                     }
                 }
             } else if (chr == '"') {
@@ -132,8 +134,8 @@ public class JackTokenizer {
                 while (chr != '{' && chr != '}' && chr != '(' && chr != ')' && chr != '[' && chr != ']'
                         && chr != '.' && chr != ',' && chr != ';'
                         && chr != '+' && chr != '-' && chr != '*' && chr != '/' && chr != '&'
-                        && chr != '|' && chr != '<' && chr != '>' && chr != '=' && chr != '~' && chr != '\s'
-                        && chr != '"') {
+                        && chr != '|' && chr != '<' && chr != '>' && chr != '=' && chr != '~'
+                        && chr != '\s' && chr != '\t' && chr != '"') {
                     nextElement += (char) chr;
                     if (!this.hasNext) {
                         break;
@@ -143,7 +145,8 @@ public class JackTokenizer {
                 // 現トークン確定
                 this.currentReaderChar = chr;
             }
-        } while (isInCommentOut && this.hasNext);
+            // コメントの中でない or 次の文字が読み込めない場合はループを抜ける。
+        } while (isInComment && this.hasNext);
 
         this.nextToken = nextElement;
     }
