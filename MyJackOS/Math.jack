@@ -3,22 +3,22 @@ class Math {
 
     function void init() {
         let twoToThe = Array.new(16);
-        twoToThe[0] = 1;
-        twoToThe[1] = 2;
-        twoToThe[2] = 4;
-        twoToThe[3] = 8;
-        twoToThe[4] = 16;
-        twoToThe[5] = 32;
-        twoToThe[6] = 64;
-        twoToThe[7] = 128;
-        twoToThe[8] = 256;
-        twoToThe[9] = 512;
-        twoToThe[10] = 1024;
-        twoToThe[11] = 2048;
-        twoToThe[12] = 4096;
-        twoToThe[13] = 8192;
-        twoToThe[14] = 16384;
-        twoToThe[15] = -32768;
+        let twoToThe[0] = 1;
+        let twoToThe[1] = 2;
+        let twoToThe[2] = 4;
+        let twoToThe[3] = 8;
+        let twoToThe[4] = 16;
+        let twoToThe[5] = 32;
+        let twoToThe[6] = 64;
+        let twoToThe[7] = 128;
+        let twoToThe[8] = 256;
+        let twoToThe[9] = 512;
+        let twoToThe[10] = 1024;
+        let twoToThe[11] = 2048;
+        let twoToThe[12] = 4096;
+        let twoToThe[13] = 8192;
+        let twoToThe[14] = 16384;
+        let twoToThe[15] = ~32767;
         return;
     }
 
@@ -30,7 +30,7 @@ class Math {
         }
     }
 
-    function int bit(x, j) {
+    function int bit(int x, int j) {
         if (x & twoToThe[j] = 0) {
             return false;
         } else {
@@ -52,7 +52,7 @@ class Math {
             let shiftedX = shiftedX + shiftedX;
             let j = j + 1;
         }
-        return x;
+        return sum;
     }
 
     function int divide(int x, int y) {
