@@ -700,7 +700,7 @@ public class CompilationEngine {
             } else if (jackTokenizer.tokenType() == EnumToken.SYMBOL && jackTokenizer.symbol() == '.') {
                 int numOfExpression = 0;
 
-                // オブジェクトのメソッドは自身の参照を隠れ引数として渡す。そのためcallする際に引数の個数が１つ増える。
+                // オブジェクトのメソッドにはオブジェクト自身の参照を隠れ引数として渡す。そのためcallする際に引数の個数が１つ増える。
                 if (!symbolTable.kindOf(tmpIdentifier).equals("NONE")) {
                     if (symbolTable.kindOf(tmpIdentifier).equals("static")) {
                         vMwriter.writePush("static", symbolTable.indexOf(tmpIdentifier));
