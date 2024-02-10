@@ -1,0 +1,81 @@
+class Math {
+    static Array twoToThe;
+
+    function void init() {
+        let twoToThe = Array.new(16);
+        twoToThe[0] = 1;
+        twoToThe[1] = 2;
+        twoToThe[2] = 4;
+        twoToThe[3] = 8;
+        twoToThe[4] = 16;
+        twoToThe[5] = 32;
+        twoToThe[6] = 64;
+        twoToThe[7] = 128;
+        twoToThe[8] = 256;
+        twoToThe[9] = 512;
+        twoToThe[10] = 1024;
+        twoToThe[11] = 2048;
+        twoToThe[12] = 4096;
+        twoToThe[13] = 8192;
+        twoToThe[14] = 16384;
+        twoToThe[15] = -32768;
+        return;
+    }
+
+    function int abs(int x) {
+        if (x < 0) {
+            return -x;
+        } else {
+            return x;
+        }
+    }
+
+    function int bit(x, j) {
+        if (x & twoToThe[j] = 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function int multiply(int x, int y) {
+        var int sum, shiftedX, j;
+
+        let sum = 0;
+        let shiftedX = x;
+
+        let j = 0;
+        while (j < 16) {
+            if (bit(y, j)) {
+                let sum = sum + shiftedX;
+            }
+            let shiftedX = shiftedX + shiftedX;
+            let j = j + 1;
+        }
+        return x;
+    }
+
+    function int divide(int x, int y) {
+        return x;
+    }
+
+    function int min(int x, int y) {
+        if (x > y) {
+            return y;
+        } else {
+            return x;
+        }
+    }
+
+    function int max(int x, int y) {
+        if (x < y) {
+            return y;
+        } else {
+            return x;
+        }
+    }
+
+    function int sqrt(int x, int y) {
+        return x;
+    }
+}
