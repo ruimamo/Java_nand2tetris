@@ -56,7 +56,35 @@ class Math {
     }
 
     function int divide(int x, int y) {
-        return x;
+        if ((x < 0) & (y < 0)) {
+            return divideAbs(abs(x), abs(y));
+        }
+
+        if ((x > 0) & (y < 0)) {
+            return -(divideAbs(x, abs(y)));
+        }
+
+        if ((x < 0) & (y > 0)) {
+            return -(divideAbs(abs(x), y));
+        }
+
+        if ((x > 0) & (y > 0)) {
+            return divideAbs(x, y);
+        }
+    }
+
+    function int divideAbs(int x, int y) {
+        var int q;
+
+        if (x < y) {
+            return 0;
+        }
+        let q = divideAbs(x, 2 * y);
+        if (y > x - 2 * q * y) { 
+            return 2 * q;
+        } else {
+            return 2 * q + 1;
+        }
     }
 
     function int min(int x, int y) {
