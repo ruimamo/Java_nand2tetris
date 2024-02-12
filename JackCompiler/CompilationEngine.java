@@ -686,7 +686,8 @@ public class CompilationEngine {
             if (jackTokenizer.tokenType() == EnumToken.SYMBOL && jackTokenizer.symbol() == '(') {
                 jackTokenizer.advance();
 
-                // f()の形のサブルーチンがこのクラスのメソッドかファンクションかは不明だが、
+                // term中のf()の形のサブルーチンはこのクラスのメソッドであり、ファンクションではない。
+                // (P.208 ファンクションやコンストラクタはそのクラス名も含まなければならない)
                 // 引数としてこのオブジェクトの参照を渡す。引数の数も1つ増える
                 vMwriter.writePush("pointer", 0);
                 int numOfExpression = compileExpressionList() + 1;
