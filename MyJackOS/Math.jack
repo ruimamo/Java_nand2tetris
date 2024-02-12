@@ -46,7 +46,7 @@ class Math {
 
         let j = 0;
         while (j < 16) {
-            if (bit(y, j)) {
+            if (Math.bit(y, j)) {
                 let sum = sum + shiftedX;
             }
             let shiftedX = shiftedX + shiftedX;
@@ -57,30 +57,31 @@ class Math {
 
     function int divide(int x, int y) {
         if ((x < 0) & (y < 0)) {
-            return divideAbs(abs(x), abs(y));
+            return Math.divideAbs(Math.abs(x), Math.abs(y));
         }
 
         if ((x > 0) & (y < 0)) {
-            return -(divideAbs(x, abs(y)));
+            return -(Math.divideAbs(x, Math.abs(y)));
         }
 
         if ((x < 0) & (y > 0)) {
-            return -(divideAbs(abs(x), y));
+            return -(Math.divideAbs(Math.abs(x), y));
         }
 
         if ((x > 0) & (y > 0)) {
-            return divideAbs(x, y);
+            return Math.divideAbs(x, y);
         }
     }
 
+    // 乗算を減らして最適化したい。
     function int divideAbs(int x, int y) {
         var int q;
 
         if (x < y) {
             return 0;
         }
-        let q = divideAbs(x, 2 * y);
-        if (y > x - 2 * q * y) { 
+        let q = Math.divideAbs(x, 2 * y);
+        if ((x - (2 * q * y)) < y) { 
             return 2 * q;
         } else {
             return 2 * q + 1;
@@ -103,7 +104,27 @@ class Math {
         }
     }
 
-    function int sqrt(int x, int y) {
-        return x;
+    function int sqrt(int x) {
+        var int n, j, y, presq, postsq;
+
+        // 0 <= x < 2^nとなるnを見つける
+        let n = 15;
+        while ((Math.bit(x, n) = false) & (n > -1)) {
+            let n = n - 1;
+        }
+        let n = n + 1;
+
+        let y = 0;
+        let j = (n - 1) / 2;
+        while (j > -1) {
+            let presq = y + twoToThe[j];
+            let postsq = presq * presq;
+            if (((postsq < x) | (postsq = x)) & (postsq > 0)) {
+                let y = presq;
+            }
+            let j = j - 1;
+        }
+
+        return y;
     }
 }
