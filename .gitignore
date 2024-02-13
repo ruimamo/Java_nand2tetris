@@ -1,2 +1,6 @@
-chapter*/
+# mac特有のファイル
 **/.DS_Store
+
+# テスト用のファイルなど
+chapter*/
+*Test/
