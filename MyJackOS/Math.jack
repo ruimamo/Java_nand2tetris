@@ -102,11 +102,11 @@ class Math {
         if (x < y) {
             return 0;
         }
-        let q = Math.divideAbs(x, 2 * y);
-        if ((x - (2 * q * y)) < y) { 
-            return 2 * q;
+        let q = Math.divideAbs(x, y + y);
+        if ((x - ((q + q) * y)) < y) { 
+            return q + q;
         } else {
-            return 2 * q + 1;
+            return q + q + 1;
         }
     }
 
