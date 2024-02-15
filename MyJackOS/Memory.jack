@@ -9,11 +9,14 @@
  * consists of 32,768 words, each holding a 16-bit binary number.
  */ 
 class Memory {
-    static int free;
+    static Array heapBase;
 
     /** Initializes the class. */
     function void init() {
-        let free = 2048;
+        let heapBase = 2048;
+        let heapBase[0] = 14336;
+        let heapBase[1] = -1;
+        return;
     }
 
     /** Returns the RAM value at the given address. */
@@ -36,10 +39,24 @@ class Memory {
     /** Finds an available RAM block of the given size and returns
      *  a reference to its base address. */
     function int alloc(int size) {
-        var int pointer;
-        let pointer = free;
-        let free = free + size;
-        return pointer;
+        // preSegmentはメモリを確保したセグメントの１つ前のセグメント
+        // 完全にセグメントを取り去った際に、
+        // そのセグメントが指していた次のセグメントへの参照をpreSegmentに参照させる必要があるため。
+        var Array preSegment, segment;
+        var int block;
+
+        let preSegment = -1;
+        let segment = heapBase;
+        let block = -1;
+
+        if (((segment[0] - 3) > size) | ((segment[0] - 1) = size)) {
+            let block = segment + (segment[0] - size);
+        }
+        
+        while (~(segment[1] = -1)) {
+            let preSegment = segment;
+
+        }
     }
 
     /** De-allocates the given object (cast as an array) by making
