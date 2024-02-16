@@ -41,27 +41,89 @@ class Memory {
     function int alloc(int size) {
         // preSegmentはメモリを確保したセグメントの１つ前のセグメント
         // 完全にセグメントを取り去った際に、
-        // そのセグメントが指していた次のセグメントへの参照をpreSegmentに参照させる必要があるため。
+        // そのセグメントが指していた次のセグメントへの参照をpreSegmentに参照させる必要がある。
         var Array preSegment, segment;
-        var int block;
+        var int segmentSize, block;
 
         let preSegment = -1;
         let segment = heapBase;
+        // best-fitアルゴリズム（欲しいサイズに近いセグメントを取る）のため、セグメントのサイズを逐次記録する。
+        let segmentSize = 14337;
         let block = -1;
 
         if (((segment[0] - 3) > size) | ((segment[0] - 1) = size)) {
             let block = segment + (segment[0] - size);
+            let segmentSize = segment[0];
         }
         
         while (~(segment[1] = -1)) {
             let preSegment = segment;
+            let segment = segment[1];
 
+            if (((segment[0] - 3) > size) | ((segment[0] - 1) = size)) {
+                if (segment[0] < segmentSize) {
+                    let block = segment + (segment[0] - size);
+                    let segmentSize = segment[0];
+                } 
+            }
         }
+
+        if (block = -1) {
+            do Sys.error(6);
+        }
+
+        // セグメントを切り取るか、丸ごと取るか
+        if (segmentSize = (size + 1)) {
+            if (preSegment = -1) {
+                let heapBase = peek(block); // 最初のセグメントを丸ごと取り去る場合
+            } else {
+                let preSegment[1] = peek(block);
+            }
+        } else {
+            if (preSegment = -1) {
+                let heapBase[0] = segmentSize - (size + 1);
+                let block[-1] = size + 1;
+            } else {
+                let segment = preSegment[1];
+                let segment[0] = segmentSize - (size + 1);
+                let block[-1] = size + 1;
+            }
+        }
+
+        return block;
+
     }
 
     /** De-allocates the given object (cast as an array) by making
      *  it available for future allocations. */
     function void deAlloc(Array o) {
+        var Array freeSegment, segment, postSegment;
+
+        let freeSegment = o - 1;
+        let segment = heapBase;
+
+        while ((freeSegment > segment[1]) | ~(segment[1] = -1)) {
+            let segment = segment[1];
+        }
+
+        if (segment + segment[0] = freeSegment) {
+            let segment[0] = segment[0] + freeSegment[0];
+            if (segment + segment[0] = segment[1]) {
+                let postSegment = segment[1];
+                let segment[0] = segment[0] + postSegment[0];
+                let segment[1] = postSegment[1];
+            }
+        } else {
+            let postSegment = segment[1];
+            let segment[1] = freeSegment;
+            if (freeSegment + freeSegment[0] = postSegment) {
+                let freeSegment[0] = freeSegment[0] + postSegment[0];
+                let freeSegment[1] = postSegment[1];
+            } else {
+                let freeSegment[1] = postSegment;
+            }
+        }
+
         return;
     }    
 }
