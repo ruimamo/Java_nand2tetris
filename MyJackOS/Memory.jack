@@ -102,7 +102,7 @@ class Memory {
         let freeSegment = o - 1;
         let segment = heapBase;
 
-        while ((freeSegment > segment[1]) | ~(segment[1] = -1)) {
+        while ((freeSegment > segment[1]) & ~(segment[1] = -1)) {
             let segment = segment[1];
         }
 
