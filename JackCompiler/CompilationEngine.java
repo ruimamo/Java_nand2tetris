@@ -173,6 +173,8 @@ public class CompilationEngine {
             isConstructor = true;
         }
 
+        // 1番目の引数は、メソッドの属するオブジェクトの参照が隠れ引数として渡されているので、
+        // symbolTableに登録する。
         if (jackTokenizer.tokenType() == EnumToken.KEYWORD
                 && jackTokenizer.keyWord().equals("method")) {
             isMethod = true;
@@ -223,12 +225,16 @@ public class CompilationEngine {
 
         vMwriter.writeFunction(this.className + "." + subroutineName, numOfLocalVariable);
 
+        // コンストラクタはオブジェクトのフィールド変数の数の分だけの長さのメモリを確保し、
+        // そのベースアドレスをthisセグメントに設定する。
         if (isConstructor) {
             vMwriter.writePush("constant", numOfField);
             vMwriter.writeCall("Memory.alloc", 1);
             vMwriter.writePop("pointer", 0);
         }
 
+        // メソッドの1番目の引数は、そのメソッドの属するオブジェクトの参照であるため、
+        // そのベースアドレスをthisセグメントに設定する。
         if (isMethod) {
             vMwriter.writePush("argument", 0);
             vMwriter.writePop("pointer", 0);
@@ -687,7 +693,7 @@ public class CompilationEngine {
                 jackTokenizer.advance();
 
                 // term中のf()の形のサブルーチンはこのクラスのメソッドであり、ファンクションではない。
-                // (P.208 ファンクションやコンストラクタはそのクラス名も含まなければならない)
+                // (P.208 ファンクションやコンストラクタは"クラス名.サブルーチン名()"の形で呼び出される)
                 // 引数としてこのオブジェクトの参照を渡す。引数の数も1つ増える
                 vMwriter.writePush("pointer", 0);
                 int numOfExpression = compileExpressionList() + 1;
