@@ -57,19 +57,61 @@ class String {
 
     /** Appends c to this string's end and returns this string. */
     method String appendChar(char c) {
+        if (maxLen = currentLen) {
+            do Sys.error(17);
+        }
+
+        let string[currentLen] = c;
+        let currentLen = currentLen + 1;
+        return this;
     }
 
     /** Erases the last character from this string. */
     method void eraseLastChar() {
+        if (currentLen = 0) {
+            do Sys.error(18);
+        }
+
+        let currentLen = currentLen - 1;
+        return;
     }
 
     /** Returns the integer value of this string, 
      *  until a non-digit character is detected. */
     method int intValue() {
+        var int i, v;
+        var bool isNumber;
+
+        let i = 0;
+        let v = 0;
+        let isNumber = true;
+        while ((i < currentLen) & (isNumber = true)) {
+            if ((47 < string[i]) & (string[i] < 58)) {
+                let v = (v * 10) + (string[i] - 48);
+            } else {
+                isNumber = false;
+            }
+            let i = i + 1;
+        }
+
+        return v;
     }
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
+        var int quotient, remainder;
+
+        if (currentLen = maxLen) {
+            do Sys.error(19);
+        }
+        let quotient = val / 10;
+        let remainder = val - (quotient * 10);
+
+        if (quotient > 0) {
+            do setInt(quotient);
+        }
+        appendChar(c + 48);
+        return;
     }
 
     /** Returns the new line character. */
