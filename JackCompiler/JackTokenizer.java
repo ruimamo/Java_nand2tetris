@@ -124,6 +124,10 @@ public class JackTokenizer {
             } else if (chr == '"') {
                 nextElement += '"';
                 readNextChar();
+                // コメント内にダブルクォート(")が一つだけ書かれていると止まらなくなるため。
+                if (isInComment) {
+                    continue;
+                }
                 while (this.currentReaderChar != '"') {
                     nextElement += (char) this.currentReaderChar;
                     readNextChar();
