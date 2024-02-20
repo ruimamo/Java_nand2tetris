@@ -45,6 +45,10 @@ class Memory {
         var Array preSegment, segment;
         var int segmentSize, block;
 
+        if (size < 1) {
+            do Sys.error(5);
+        }
+
         let preSegment = -1;
         let segment = heapBase;
         // best-fitアルゴリズム（欲しいサイズに近いセグメントを取る）のため、セグメントのサイズを逐次記録する。
