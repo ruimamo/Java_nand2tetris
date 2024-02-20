@@ -17,10 +17,12 @@ class String {
     /** constructs a new empty string with a maximum length of maxLength
      *  and initial length of 0. */
     constructor String new(int maxLength) {
-        if (maxLength < 1) {
+        if (maxLength < 0) {
             do Sys.error(14);
         }
-        let string = Memory.alloc(maxLength);
+        if (maxLength > 0) {
+            let string = Memory.alloc(maxLength);
+        }
         let maxLen = maxLength;
         let currentLen = 0;
 
@@ -85,11 +87,12 @@ class String {
         let i = 0;
         let v = 0;
         let isNumber = true;
+        
         while ((i < currentLen) & (isNumber = true)) {
             if ((47 < string[i]) & (string[i] < 58)) {
                 let v = (v * 10) + (string[i] - 48);
             } else {
-                isNumber = false;
+                let isNumber = false;
             }
             let i = i + 1;
         }
@@ -110,19 +113,22 @@ class String {
         if (quotient > 0) {
             do setInt(quotient);
         }
-        appendChar(c + 48);
+        do appendChar(remainder + 48);
         return;
     }
 
     /** Returns the new line character. */
     function char newLine() {
+        return 128;
     }
 
     /** Returns the backspace character. */
     function char backSpace() {
+        return 129;
     }
 
     /** Returns the double quote (") character. */
     function char doubleQuote() {
+        return 34;
     }
 }
