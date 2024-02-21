@@ -37,7 +37,7 @@ class String {
 
     /** Returns the current length of this string. */
     method int length() {
-        return maxLen;
+        return currentLen;
     }
 
     /** Returns the character at the j-th location of this string. */
@@ -82,11 +82,17 @@ class String {
      *  until a non-digit character is detected. */
     method int intValue() {
         var int i, v;
-        var bool isNumber;
+        var bool isNumber, isNegative;
 
         let i = 0;
         let v = 0;
         let isNumber = true;
+        let isNegative = false;
+
+        if (string[0] = 45) {
+            let isNegative = true;
+            let i = 1;
+        }
         
         while ((i < currentLen) & (isNumber = true)) {
             if ((47 < string[i]) & (string[i] < 58)) {
@@ -97,11 +103,28 @@ class String {
             let i = i + 1;
         }
 
-        return v;
+        if (isNegative = true) {
+            return -v;
+        } else {
+            return v;
+        }
     }
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
+        let currentLen = 0;
+
+        if (val < 0) {
+            do appendChar(45);
+            do setIntBody(-val);
+        } else {
+            do setIntBody(val);
+        }
+
+        return;
+    }
+
+    method void setIntBody(int val) {
         var int quotient, remainder;
 
         if (currentLen = maxLen) {
@@ -111,7 +134,7 @@ class String {
         let remainder = val - (quotient * 10);
 
         if (quotient > 0) {
-            do setInt(quotient);
+            do setIntBody(quotient);
         }
         do appendChar(remainder + 48);
         return;
