@@ -26,6 +26,7 @@ class Output {
         do Output.moveCursor(0, 0);
         let x = 0;
         let y = 0;
+        return;
     }
 
     // Initializes the character map array
@@ -181,11 +182,28 @@ class Output {
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
-        if (i & 1 = 0) {
-            
-        } else {
+        var int painter, idx, preWord, row;
 
+        if (j & 1 = 0) {
+            let painter = -256;    
+        } else {
+            let painter = 255;
         }
+
+        let row = 0;
+        let idx = i * 352 + (j / 2);
+
+        while (row < 11) {
+            let preWord = Memory.peek(idx);
+            do Memory.poke(idx, preWord & painter);
+            let idx = idx + 32;
+            let row = row + 1;
+        }
+
+        let x = i;
+        let y = j;
+
+        return;
     }
 
     /** Displays the given character at the cursor location,
