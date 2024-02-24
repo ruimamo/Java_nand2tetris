@@ -17,15 +17,26 @@
 class Output {
 
     // Character map for displaying characters
-    static Array charMaps; 
-    static int x, y;
+    static Array charMaps, pixelsRightToLeft;
+    static int cursorX, cursorY;
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
+        do Output.initMap();
         do Screen.clearScreen();
         do Output.moveCursor(0, 0);
-        let x = 0;
-        let y = 0;
+
+        let pixelsRightToLeft = Array.new(8);
+        let pixelsRightToLeft[0] = 128;
+        let pixelsRightToLeft[1] = 64;
+        let pixelsRightToLeft[2] = 32;
+        let pixelsRightToLeft[3] = 16;
+        let pixelsRightToLeft[4] = 8;
+        let pixelsRightToLeft[5] = 4;
+        let pixelsRightToLeft[6] = 2;
+        let pixelsRightToLeft[7] = 1;
+        let cursorX = 0;
+        let cursorY = 0;
         return;
     }
 
@@ -182,12 +193,14 @@ class Output {
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
-        var int painter, idx, preWord, row;
+        var int printer, idx, preWord, row;
 
         if (j & 1 = 0) {
-            let painter = -256;    
+            // 0000000011111111
+            let printer = 255;    
         } else {
-            let painter = 255;
+            // 1111111100000000
+            let printer = -256;
         }
 
         let row = 0;
@@ -195,13 +208,13 @@ class Output {
 
         while (row < 11) {
             let preWord = Memory.peek(idx);
-            do Memory.poke(idx, preWord & painter);
+            do Memory.poke(idx, preWord & printer);
             let idx = idx + 32;
             let row = row + 1;
         }
 
-        let x = i;
-        let y = j;
+        let cursorX = i;
+        let cursorY = j;
 
         return;
     }
@@ -209,6 +222,44 @@ class Output {
     /** Displays the given character at the cursor location,
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
+        var Array cPixels;
+        var int idx, row, column, printer, ink;
+
+        do moveCursor(cursorX, cursorY);
+        let cPixels = charMaps[c];
+
+        let row = 0;
+        let printer = 0;
+        let idx = i * 352 + (j / 2);
+
+        if (j & 1 = 0) {
+            // 0000000100000000
+            let ink = 256;    
+        } else {
+            // 0000000000000001
+            let ink = 1;
+        }
+
+        while (row < 11) {
+            let preWord = Memory.peek(idx);
+
+            let column = 0;
+            while (column < 8) {
+                if (~((cPixels[row] & pixelsRightToLeft[column]) = 0)) {
+                    let printer = printer + ink;
+                }
+                let ink = ink + ink;
+                let column = column + 1;
+            }
+
+            do Memory.poke(idx, preWord | painter);
+            let idx = idx + 32;
+            let row = row + 1;
+        }
+
+        do moveCursor(cursorX, cursorY + 1);
+
+        return;
     }
 
     /** displays the given string starting at the cursor location,
