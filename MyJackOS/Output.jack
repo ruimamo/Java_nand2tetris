@@ -17,8 +17,8 @@
 class Output {
 
     // Character map for displaying characters
-    static Array charMaps, pixelsRightToLeft;
-    static int cursorX, cursorY;
+    static Array charMaps, pixelsLeftToRight;
+    static int cursorRow, cursorColumn;
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
@@ -26,17 +26,17 @@ class Output {
         do Screen.clearScreen();
         do Output.moveCursor(0, 0);
 
-        let pixelsRightToLeft = Array.new(8);
-        let pixelsRightToLeft[0] = 128;
-        let pixelsRightToLeft[1] = 64;
-        let pixelsRightToLeft[2] = 32;
-        let pixelsRightToLeft[3] = 16;
-        let pixelsRightToLeft[4] = 8;
-        let pixelsRightToLeft[5] = 4;
-        let pixelsRightToLeft[6] = 2;
-        let pixelsRightToLeft[7] = 1;
-        let cursorX = 0;
-        let cursorY = 0;
+        let pixelsLeftToRight = Array.new(8);
+        let pixelsLeftToRight[0] = 1;
+        let pixelsLeftToRight[1] = 2;
+        let pixelsLeftToRight[2] = 4;
+        let pixelsLeftToRight[3] = 8;
+        let pixelsLeftToRight[4] = 16;
+        let pixelsLeftToRight[5] = 32;
+        let pixelsLeftToRight[6] = 64;
+        let pixelsLeftToRight[7] = 128;
+        let cursorRow = 0;
+        let cursorColumn = 0;
         return;
     }
 
@@ -195,16 +195,20 @@ class Output {
     function void moveCursor(int i, int j) {
         var int printer, idx, preWord, row;
 
+        if ((i < 0) | (22 < i) | (j < 0) | (63 < j)) {
+            do Sys.error(20);
+        }
+
         if (j & 1 = 0) {
-            // 0000000011111111
-            let printer = 255;    
+            // 1111111100000000 スクリーン上では16ピクセルのうち右8ビクセルが黒(1)
+            let printer = -256;    
         } else {
-            // 1111111100000000
-            let printer = -256;
+            // 0000000011111111 スクリーン上では16ピクセルのうち左8ビクセルが黒(1)
+            let printer = 255;
         }
 
         let row = 0;
-        let idx = i * 352 + (j / 2);
+        let idx = 16384 + (i * 352) + (j / 2);
 
         while (row < 11) {
             let preWord = Memory.peek(idx);
@@ -213,8 +217,8 @@ class Output {
             let row = row + 1;
         }
 
-        let cursorX = i;
-        let cursorY = j;
+        let cursorRow = i;
+        let cursorColumn = j;
 
         return;
     }
@@ -223,21 +227,20 @@ class Output {
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
         var Array cPixels;
-        var int idx, row, column, printer, ink;
+        var int idx, row, column, preWord, printer, ink;
 
-        do moveCursor(cursorX, cursorY);
         let cPixels = charMaps[c];
 
         let row = 0;
         let printer = 0;
-        let idx = i * 352 + (j / 2);
+        let idx = 16384 + (cursorRow * 352) + (cursorColumn / 2);
 
         if (j & 1 = 0) {
-            // 0000000100000000
-            let ink = 256;    
+            // 0000000000000001 スクリーン上では16ピクセルのうち最も左の1ビクセルが黒(1)
+            let ink = 1;    
         } else {
-            // 0000000000000001
-            let ink = 1;
+            // 0000000100000000
+            let ink = 256;
         }
 
         while (row < 11) {
@@ -245,7 +248,7 @@ class Output {
 
             let column = 0;
             while (column < 8) {
-                if (~((cPixels[row] & pixelsRightToLeft[column]) = 0)) {
+                if (~((cPixels[row] & pixelsLeftToRight[column]) = 0)) {
                     let printer = printer + ink;
                 }
                 let ink = ink + ink;
@@ -256,8 +259,14 @@ class Output {
             let idx = idx + 32;
             let row = row + 1;
         }
-
-        do moveCursor(cursorX, cursorY + 1);
+        
+        if (cursorColumn = 63) {
+            let cursorRow = cursorRow + 1;
+            let cursorColumn = 0;
+        } else {
+            let cursorColumn = cursorColumn + 1;
+        }
+        do moveCursor(cursorRow, cursorColumn);
 
         return;
     }
@@ -265,18 +274,58 @@ class Output {
     /** displays the given string starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printString(String s) {
+        var int sLen, i;
+
+        let i = 0;
+        let sLen = s.length();
+        while (i < sLen) {
+            do Output.printChar(s.charAt(i));
+            let i = i + 1;
+        }
+
+        return;
     }
 
     /** Displays the given integer starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
+        var int dividend, quotient;
+
+        let dividend = i;
+        if (dividend < 0) {
+            do Output.printChar(45);
+            let dividend = -dividend;
+        }
+
+        while (dividend > 9) {
+            let quotient = dividend / 10; 
+            do Output.printChar(dividend - (quotient * 10) + 48);
+            let dividend = quotient;
+        }
+        do Output.printChar(dividend + 48);
+        
+        return;
     }
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
+        let cursorRow = cursorRow + 1;
+        let cursorColumn = 0;
+        do moveCursor(cursorRow, cursorColumn);
+
+        return;
     }
 
     /** Moves the cursor one column back. */
     function void backSpace() {
+        if (cursorColumn = 0) {
+            let cursorRow = cursorRow - 1;
+            let cursorColumn = 63;
+        } else {
+            let cursorColumn = cursorColumn - 1;
+        }
+        do moveCursor(cursorRow, cursorColumn);
+
+        return;
     }
 }
