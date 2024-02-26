@@ -193,7 +193,7 @@ class Output {
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
-        var int printer, idx, preWord, row;
+        var int printer, address, preWord, row;
 
         if ((i < 0) | (22 < i) | (j < 0) | (63 < j)) {
             do Sys.error(20);
@@ -201,19 +201,19 @@ class Output {
 
         if (j & 1 = 0) {
             // 1111111100000000 スクリーン上では16ピクセルのうち右8ビクセルが黒(1)
-            let printer = -256;    
+            let printer = -256;
         } else {
             // 0000000011111111 スクリーン上では16ピクセルのうち左8ビクセルが黒(1)
             let printer = 255;
         }
 
+        let address = 16384 + (i * 352) + (j / 2);
         let row = 0;
-        let idx = 16384 + (i * 352) + (j / 2);
 
         while (row < 11) {
-            let preWord = Memory.peek(idx);
-            do Memory.poke(idx, preWord & printer);
-            let idx = idx + 32;
+            let preWord = Memory.peek(address);
+            do Memory.poke(address, preWord & printer);
+            let address = address + 32;
             let row = row + 1;
         }
 
@@ -227,46 +227,35 @@ class Output {
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
         var Array cPixels;
-        var int idx, row, column, preWord, printer, ink;
+        var int address, row, preWord;
 
-        let cPixels = charMaps[c];
+        let cPixels = Output.getMap(c);
 
+        let address = 16384 + (cursorRow * 352) + (cursorColumn / 2);
         let row = 0;
-        let printer = 0;
-        let idx = 16384 + (cursorRow * 352) + (cursorColumn / 2);
-
-        if (j & 1 = 0) {
-            // 0000000000000001 スクリーン上では16ピクセルのうち最も左の1ビクセルが黒(1)
-            let ink = 1;    
-        } else {
-            // 0000000100000000
-            let ink = 256;
-        }
 
         while (row < 11) {
-            let preWord = Memory.peek(idx);
-
-            let column = 0;
-            while (column < 8) {
-                if (~((cPixels[row] & pixelsLeftToRight[column]) = 0)) {
-                    let printer = printer + ink;
-                }
-                let ink = ink + ink;
-                let column = column + 1;
+            let preWord = Memory.peek(address);
+            if (cursorColumn & 1 = 0) {
+                do Memory.poke(address, cPixels[row] + preWord);   
+            } else {
+                do Memory.poke(address, cPixels[row] * 256 + preWord);
             }
-
-            do Memory.poke(idx, preWord | painter);
-            let idx = idx + 32;
+            let address = address + 32;
             let row = row + 1;
         }
         
         if (cursorColumn = 63) {
-            let cursorRow = cursorRow + 1;
+            if (cursorRow = 22) {
+                let cursorRow = 0;
+            } else {
+                let cursorRow = cursorRow + 1;
+            }
             let cursorColumn = 0;
         } else {
             let cursorColumn = cursorColumn + 1;
         }
-        do moveCursor(cursorRow, cursorColumn);
+        do Output.moveCursor(cursorRow, cursorColumn);
 
         return;
     }
@@ -289,20 +278,12 @@ class Output {
     /** Displays the given integer starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
-        var int dividend, quotient;
+        var String intString;
 
-        let dividend = i;
-        if (dividend < 0) {
-            do Output.printChar(45);
-            let dividend = -dividend;
-        }
-
-        while (dividend > 9) {
-            let quotient = dividend / 10; 
-            do Output.printChar(dividend - (quotient * 10) + 48);
-            let dividend = quotient;
-        }
-        do Output.printChar(dividend + 48);
+        let intString = String.new(6);
+        do intString.setInt(i);
+        do Output.printString(intString); 
+        do intString.dispose();
         
         return;
     }
@@ -311,7 +292,7 @@ class Output {
     function void println() {
         let cursorRow = cursorRow + 1;
         let cursorColumn = 0;
-        do moveCursor(cursorRow, cursorColumn);
+        do Output.moveCursor(cursorRow, cursorColumn);
 
         return;
     }
@@ -324,7 +305,7 @@ class Output {
         } else {
             let cursorColumn = cursorColumn - 1;
         }
-        do moveCursor(cursorRow, cursorColumn);
+        do Output.moveCursor(cursorRow, cursorColumn);
 
         return;
     }
