@@ -1,0 +1,98 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Screen.jack
+
+/**
+ * A library of functions for displaying graphics on the screen.
+ * The Hack physical screen consists of 256 rows (indexed 0..255, top to bottom)
+ * of 512 pixels each (indexed 0..511, left to right). The top left pixel on 
+ * the screen is indexed (0,0).
+ */
+class Screen {
+    static int currentColor;
+    static Array twoToThe;
+
+    /** Initializes the Screen. */
+    function void init() {
+        let currentColor = 1;
+        let twoToThe = Array.new(16);
+        let twoToThe[0] = 1;
+        let twoToThe[1] = 2;
+        let twoToThe[2] = 4;
+        let twoToThe[3] = 8;
+        let twoToThe[4] = 16;
+        let twoToThe[5] = 32;
+        let twoToThe[6] = 64;
+        let twoToThe[7] = 128;
+        let twoToThe[8] = 256;
+        let twoToThe[9] = 512;
+        let twoToThe[10] = 1024;
+        let twoToThe[11] = 2048;
+        let twoToThe[12] = 4096;
+        let twoToThe[13] = 8192;
+        let twoToThe[14] = 16384;
+        let twoToThe[15] = ~32767;
+        return;
+    }
+
+    /** Erases the entire screen. */
+    function void clearScreen() {
+        var int address;
+
+        let address = 16384;
+        while (address < 24576) {
+            do Memory.poke(address, 0);
+            let address = address + 1;
+        }
+
+        return;
+    }
+
+    /** Sets the current color, to be used for all subsequent drawXXX commands.
+     *  Black is represented by true, white by false. */
+    function void setColor(boolean b) {
+        if (b) {
+            let currentColor = 1;
+        } else {
+            let currentColor = 0;
+        }
+
+        return;
+    }
+
+    /** Draws the (x,y) pixel, using the current color. */
+    function void drawPixel(int x, int y) {
+        var int address, quotient, remainder, paint;
+
+        let quotient = y / 16;
+        let address = 16384 + (x * 32) + quotient;
+        let remainder = y - (quotient * 16);
+
+        let paint = Memory.peek(address);
+        if (currentColor = 1) {
+            if (paint & twoToThe[remainder] = 0) {
+                do Memory.poke(address, paint + twoToThe[remainder]);
+            }
+        } else {
+            if (~(paint & twoToThe[remainder] = 0)) {
+                do Memory.poke(address, paint - twoToThe[remainder]);
+            }
+        }
+
+        return;
+    }
+
+    /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
+    function void drawLine(int x1, int y1, int x2, int y2) {
+    }
+
+    /** Draws a filled rectangle whose top left corner is (x1, y1)
+     * and bottom right corner is (x2,y2), using the current color. */
+    function void drawRectangle(int x1, int y1, int x2, int y2) {
+    }
+
+    /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
+    function void drawCircle(int x, int y, int r) {
+    }
+}
