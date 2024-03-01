@@ -78,6 +78,14 @@ class Math {
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
     function int divide(int x, int y) {
+        if (y = 0) {
+            do Sys.error(3);
+        }
+
+        if (x = 0) {
+            return 0;
+        }
+
         if ((x < 0) & (y < 0)) {
             return Math.divideAbs(Math.abs(x), Math.abs(y));
         }
@@ -113,6 +121,10 @@ class Math {
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
         var int n, j, y, presq, postsq;
+
+        if (x < 0) {
+            do Sys.error(4);
+        }
 
         // 0 <= x < 2^nとなるnを見つける
         let n = 15;
