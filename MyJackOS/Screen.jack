@@ -94,16 +94,97 @@ class Screen {
         let b = 0;
         let adyMinusbdx = 0;
 
-        while (~((a > dx) | (b > dy))) {
-            do Screen.drawPixel(x + a, y + b);
-            if (adyMinusbdx < 0) {
-                let adyMinusbdx = adyMinusbdx + dy;
+        if (dx = 0) {
+            if (dy > 0) {
+                while (~(b > dy)) {
+                    do Screen.drawPixel(x, y + b);
+                    let b = b + 1;
+                }
             } else {
-                let adyMinusbdx = adyMinusbdx - dx;
+                while (~(b < dy)) {
+                    do Screen.drawPixel(x, y + b);
+                    let b = b - 1;
+                }
             }
+
+            return;
         }
 
-        return;
+        if (dy = 0) {
+            if (dx > 0) {
+                while (~(a > dx)) {
+                    do Screen.drawPixel(x + a, y);
+                    let a = a + 1;
+                }
+            } else {
+                while (~(b < dy)) {
+                    do Screen.drawPixel(x + a, y);
+                    let a = a - 1;
+                }
+            }
+
+            return;
+        }
+
+        if ((dx > 0) & (dy > 0)) {
+            while (~((a > dx) | (b > dy))) {
+                do Screen.drawPixel(x + a, y + b);
+                if (adyMinusbdx < 0) {
+                    let a = a + 1;
+                    let adyMinusbdx = adyMinusbdx + dy;
+                } else {
+                    let b = b + 1;
+                    let adyMinusbdx = adyMinusbdx - dx;
+                }
+            }
+
+            return;
+        }
+
+        if ((dx > 0) & (dy < 0)) {
+            while (~((a > dx) | (b < dy))) {
+                do Screen.drawPixel(x + a, y + b);
+                if (adyMinusbdx < 0) {
+                    let b = b - 1;
+                    let adyMinusbdx = adyMinusbdx + dx
+                } else {
+                    let a = a + 1;
+                    let adyMinusbdx = adyMinusbdx + dy;
+                }
+            }
+
+            return;
+        }
+
+        if ((dx < 0) & (dy > 0)) {
+            while (~((a < dx) | (b > dy))) {
+                do Screen.drawPixel(x + a, y + b);
+                if (adyMinusbdx < 0) {
+                    let b = b + 1;
+                    let adyMinusbdx = adyMinusbdx - dx
+                } else {
+                    let a = a - 1;
+                    let adyMinusbdx = adyMinusbdx - dy;
+                }
+            }
+
+            return;
+        }
+
+        if ((dx < 0) & (dy < 0)) {
+            while (~((a < dx) | (b < dy))) {
+                do Screen.drawPixel(x + a, y + b);
+                if (adyMinusbdx < 0) {
+                    let a = a - 1;
+                    let adyMinusbdx = adyMinusbdx - dy;
+                } else {
+                    let b = b - 1;
+                    let adyMinusbdx = adyMinusbdx + dx;
+                }
+            }
+
+            return;
+        }
     }
 
     /** Draws a filled rectangle whose top left corner is (x1, y1)
