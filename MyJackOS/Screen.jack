@@ -65,9 +65,9 @@ class Screen {
     function void drawPixel(int x, int y) {
         var int address, quotient, remainder, paint;
 
-        let quotient = y / 16;
-        let address = 16384 + (x * 32) + quotient;
-        let remainder = y - (quotient * 16);
+        let quotient = x / 16;
+        let address = 16384 + (y * 32) + quotient;
+        let remainder = x - (quotient * 16);
 
         let paint = Memory.peek(address);
         if (currentColor = 1) {
@@ -97,12 +97,12 @@ class Screen {
         if (dx = 0) {
             if (dy > 0) {
                 while (~(b > dy)) {
-                    do Screen.drawPixel(x, y + b);
+                    do Screen.drawPixel(x1, y1 + b);
                     let b = b + 1;
                 }
             } else {
                 while (~(b < dy)) {
-                    do Screen.drawPixel(x, y + b);
+                    do Screen.drawPixel(x1, y1 + b);
                     let b = b - 1;
                 }
             }
@@ -113,12 +113,12 @@ class Screen {
         if (dy = 0) {
             if (dx > 0) {
                 while (~(a > dx)) {
-                    do Screen.drawPixel(x + a, y);
+                    do Screen.drawPixel(x1 + a, y1);
                     let a = a + 1;
                 }
             } else {
-                while (~(b < dy)) {
-                    do Screen.drawPixel(x + a, y);
+                while (~(a < dx)) {
+                    do Screen.drawPixel(x1 + a, y1);
                     let a = a - 1;
                 }
             }
@@ -128,7 +128,7 @@ class Screen {
 
         if ((dx > 0) & (dy > 0)) {
             while (~((a > dx) | (b > dy))) {
-                do Screen.drawPixel(x + a, y + b);
+                do Screen.drawPixel(x1 + a, y1 + b);
                 if (adyMinusbdx < 0) {
                     let a = a + 1;
                     let adyMinusbdx = adyMinusbdx + dy;
@@ -143,10 +143,10 @@ class Screen {
 
         if ((dx > 0) & (dy < 0)) {
             while (~((a > dx) | (b < dy))) {
-                do Screen.drawPixel(x + a, y + b);
+                do Screen.drawPixel(x1 + a, y1 + b);
                 if (adyMinusbdx < 0) {
                     let b = b - 1;
-                    let adyMinusbdx = adyMinusbdx + dx
+                    let adyMinusbdx = adyMinusbdx + dx;
                 } else {
                     let a = a + 1;
                     let adyMinusbdx = adyMinusbdx + dy;
@@ -158,10 +158,10 @@ class Screen {
 
         if ((dx < 0) & (dy > 0)) {
             while (~((a < dx) | (b > dy))) {
-                do Screen.drawPixel(x + a, y + b);
+                do Screen.drawPixel(x1 + a, y1 + b);
                 if (adyMinusbdx < 0) {
                     let b = b + 1;
-                    let adyMinusbdx = adyMinusbdx - dx
+                    let adyMinusbdx = adyMinusbdx - dx;
                 } else {
                     let a = a - 1;
                     let adyMinusbdx = adyMinusbdx - dy;
@@ -173,7 +173,7 @@ class Screen {
 
         if ((dx < 0) & (dy < 0)) {
             while (~((a < dx) | (b < dy))) {
-                do Screen.drawPixel(x + a, y + b);
+                do Screen.drawPixel(x1 + a, y1 + b);
                 if (adyMinusbdx < 0) {
                     let a = a - 1;
                     let adyMinusbdx = adyMinusbdx - dy;
@@ -192,10 +192,10 @@ class Screen {
     function void drawRectangle(int x1, int y1, int x2, int y2) {
         var int x, y;
 
-        let x = x1;
         let y = y1;
 
         while (~(y > y2)) {
+            let x = x1;
             while (~(x > x2)) {
                 do Screen.drawPixel(x, y);
                 let x = x + 1;
@@ -208,5 +208,15 @@ class Screen {
 
     /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
     function void drawCircle(int x, int y, int r) {
+        var int dx, dy;
+
+        let dy = -r;
+        while (~(dy > r)) {
+            let dx = Math.sqrt((r * r) - (dy * dy));
+            do Screen.drawLine(x - dx, y + dy, x + dx, y + dy);
+            let dy = dy + 1;
+        }
+
+        return;
     }
 }
