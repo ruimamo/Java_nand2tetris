@@ -190,6 +190,20 @@ class Screen {
     /** Draws a filled rectangle whose top left corner is (x1, y1)
      * and bottom right corner is (x2,y2), using the current color. */
     function void drawRectangle(int x1, int y1, int x2, int y2) {
+        var int x, y;
+
+        let x = x1;
+        let y = y1;
+
+        while (~(y > y2)) {
+            while (~(x > x2)) {
+                do Screen.drawPixel(x, y);
+                let x = x + 1;
+            }
+            let y = y + 1;
+        }
+
+        return;
     }
 
     /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
