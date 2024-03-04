@@ -65,6 +65,10 @@ class Screen {
     function void drawPixel(int x, int y) {
         var int address, quotient, remainder, paint;
 
+        if ((x < 0) | (511 < x) | (y < 0) | (255 < y)) {
+            do Sys.error(7);
+        }
+
         let quotient = x / 16;
         let address = 16384 + (y * 32) + quotient;
         let remainder = x - (quotient * 16);
@@ -86,6 +90,10 @@ class Screen {
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
         var int dx, dy, a, b, adyMinusbdx;
+
+        if ((x1 < 0) | (511 < x1) | (x2 < 0) | (511 < x2) | (y1 < 0) | (255 < y1) | (y2 < 0) | (255 < y2)) {
+            do Sys.error(8);
+        }
 
         let dx = x2 - x1;
         let dy = y2 - y1;
@@ -192,14 +200,18 @@ class Screen {
     function void drawRectangle(int x1, int y1, int x2, int y2) {
         var int x, y;
 
+        if ((x1 < 0) | (511 < x1) | (x2 < 0) | (511 < x2) | (y1 < 0) | (255 < y1) | (y2 < 0) | (255 < y2)) {
+            do Sys.error(9);
+        }
+
+        if ((x2 < x1) | (y2 < y1)) {
+            do Sys.error(9);
+        }
+
         let y = y1;
 
         while (~(y > y2)) {
-            let x = x1;
-            while (~(x > x2)) {
-                do Screen.drawPixel(x, y);
-                let x = x + 1;
-            }
+            do Screen.drawLine(x1, y, x2, y);
             let y = y + 1;
         }
 
@@ -209,6 +221,14 @@ class Screen {
     /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
     function void drawCircle(int x, int y, int r) {
         var int dx, dy;
+
+        if ((x < 0) | (511 < x) | (y < 0) | (255 < y)) {
+            do Sys.error(12);
+        }
+
+        if (r > 181) {
+            do Sys.error(13);
+        }
 
         let dy = -r;
         while (~(dy > r)) {
