@@ -74,7 +74,6 @@ class Keyboard {
         while (true) {
             let c = Keyboard.readChar();
             if (c = String.newLine()) {
-                do Output.println();
                 return str;
             } else {
                 if (c = String.backSpace()) {
