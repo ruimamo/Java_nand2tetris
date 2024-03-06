@@ -229,6 +229,16 @@ class Output {
         var Array cPixels;
         var int address, row, preWord;
 
+        if (c = String.newLine()) {
+            do Output.println();
+            return;
+        }
+
+        if (c = String.backSpace()) {
+            do Output.backSpace();
+            return;
+        }
+
         let cPixels = Output.getMap(c);
 
         let address = 16384 + (cursorRow * 352) + (cursorColumn / 2);
