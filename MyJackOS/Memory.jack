@@ -79,9 +79,9 @@ class Memory {
         // セグメントを切り取るか、丸ごと取るか
         if (segmentSize = (size + 1)) {
             if (preSegment = -1) {
-                let heapBase = peek(block); // 最初のセグメントを丸ごと取り去る場合
+                let heapBase = Memory.peek(block); // 最初のセグメントを丸ごと取り去る場合
             } else {
-                let preSegment[1] = peek(block);
+                let preSegment[1] = Memory.peek(block);
             }
         } else {
             if (preSegment = -1) {
